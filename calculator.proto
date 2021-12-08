@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "libs;calc";
+
+message SumRequest {
+  int32 a = 1;
+  int32 b = 2;
+}
+
+message SumResponse {
+  int32 result = 1;
+}
+
+message PrimeRequest {
+  uint32 limit = 1;
+}
+
+message PrimeResponse {
+  repeated uint32 prime = 1;
+}
+
+service calculator {
+  rpc SumService(SumRequest) returns (SumResponse) {};
+  rpc PrimeService(PrimeRequest) returns (stream PrimeResponse) {};
+}
