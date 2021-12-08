@@ -25,7 +25,8 @@ func main (){
 
 	//sendUnary(cc)
 	//serverStream(cc)
-	clientStream(cc)
+	//clientStream(cc)
+	biDirectional(cc)
 }
 
 func sendUnary(cc calc.CalculatorClient) {
@@ -95,3 +96,39 @@ func clientStream(cc calc.CalculatorClient){
 	log.Printf("The average from the server is: %v", res.GetAverage())
 }
 
+func biDirectional(cc calc.CalculatorClient){
+	nums := []int32{1, 4, 7, 9, 3, 5, 10, 17, 2, 4, 6, 55, 23, 66}
+	stream, err := cc.FindMaxService(context.Background())
+	if err != nil {
+		log.Fatalf("Cannot get stream to work with: %v", err)
+	}
+
+	waitChan := make(chan struct{})
+
+	// Send
+	go func() {
+		for _, num := range nums{
+			stream.Send(&calc.FindMaxRequest{
+				Num: num,
+			})
+		}
+		stream.CloseSend()
+	}()
+
+	// Receive
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				log.Printf("Finished receiving from server\n")
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error receiving stream from server: %v \n", err)
+			}
+			log.Printf("Max num from server: %v", res.GetMax())
+		}
+		close(waitChan)
+	}()
+	<-waitChan
+}

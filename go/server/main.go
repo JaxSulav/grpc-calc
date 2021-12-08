@@ -84,6 +84,32 @@ func (*server) AverageService(stream calc.Calculator_AverageServiceServer) error
 	return nil
 }
 
+func (*server) FindMaxService(stream calc.Calculator_FindMaxServiceServer) error {
+	maxNUm := int32(0)
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Println("Stream from the server finished")
+			break
+		}
+		if err != nil {
+			log.Fatalf("Canot receive the stream from the server: %v", err)
+		}
+
+		num := req.GetNum()
+		if num > maxNUm{
+			maxNUm = num
+			log.Printf("Found new max number: %v \n", maxNUm)
+			time.Sleep(time.Millisecond * 500)
+			stream.Send(&calc.FindMaxResponse{
+				Max: maxNUm,
+			})
+		}
+
+	}
+	return nil
+}
+
 func main () {
 	// Establish connection with the host
 	lis, err := net.Listen("tcp", port)
