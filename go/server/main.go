@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -49,7 +50,6 @@ func (*server) SumService(c context.Context, req *calc.SumRequest) (*calc.SumRes
 
 }
 
-
 func (*server) PrimeService(req *calc.PrimeRequest, stream calc.Calculator_PrimeServiceServer) error {
 	limit := req.GetLimit()
 	fmt.Printf("Recieved request to calculate prime number for limit: %v \n", limit)
@@ -57,6 +57,32 @@ func (*server) PrimeService(req *calc.PrimeRequest, stream calc.Calculator_Prime
 	return nil
 }
 
+func (*server) AverageService(stream calc.Calculator_AverageServiceServer) error {
+	average := float32(0)
+	cnt := uint32(0)
+	log.Println("Starting Average Calculator Service...")
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF{
+			stream.SendAndClose(&calc.AverageResponse{
+				Average: average,
+			})
+			break
+		}
+		if err != nil {
+			log.Printf("Could not receive from the streaming client: %v", err)
+			break
+		}
+		reqNum := req.GetNum()
+		log.Printf("Received stream for average: %v \n", reqNum)
+		cnt++
+		time.Sleep(time.Millisecond * 500)
+		average = (average + reqNum) / float32(cnt)
+
+	}
+	log.Printf("Sending response average: %v", average)
+	return nil
+}
 
 func main () {
 	// Establish connection with the host

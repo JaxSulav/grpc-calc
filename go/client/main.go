@@ -24,8 +24,8 @@ func main (){
  	cc := calc.NewCalculatorClient(conn)
 
 	//sendUnary(cc)
-	serverStream(cc)
-
+	//serverStream(cc)
+	clientStream(cc)
 }
 
 func sendUnary(cc calc.CalculatorClient) {
@@ -48,7 +48,6 @@ func sendUnary(cc calc.CalculatorClient) {
 
 func serverStream(cc calc.CalculatorClient) {
 	limit := uint32(100)
-
 	req := &calc.PrimeRequest{
 		Limit: limit,
 	}
@@ -72,7 +71,27 @@ func serverStream(cc calc.CalculatorClient) {
 
 		fmt.Printf("Primes: %v \n", res.GetPrime())
 	}
+}
 
 
+func clientStream(cc calc.CalculatorClient){
+	nums := []float32{23.4, 22.3, 19.9, 11.11, 89.34, 78.44, 454.99}
+	stream, err := cc.AverageService(context.Background())
+	if err != nil {
+		log.Fatalf("Canot create stream to send: %v", err)
+	}
+
+	for _, num := range nums{
+		stream.Send(&calc.AverageRequest{
+			Num: num,
+		})
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Could not receive response from the server: %v", err)
+	}
+
+	log.Printf("The average from the server is: %v", res.GetAverage())
 }
 

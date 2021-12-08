@@ -19,7 +19,16 @@ message PrimeResponse {
   repeated uint32 prime = 1;
 }
 
+message AverageRequest {
+  float num = 1;
+}
+
+message AverageResponse {
+  float average = 1;
+}
+
 service calculator {
   rpc SumService(SumRequest) returns (SumResponse) {};
   rpc PrimeService(PrimeRequest) returns (stream PrimeResponse) {};
+  rpc AverageService(stream AverageRequest) returns (AverageResponse){};
 }
