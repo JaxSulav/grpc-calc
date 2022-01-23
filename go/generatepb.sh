@@ -1,1 +1,1 @@
-protoc --go_out=. --go_opt=paths=import --go-grpc_out=. --go-grpc_opt=paths=import --proto_path=../ ../calculator.proto
+protoc --go_out=. --go_opt=paths=import --go-grpc_out=. --go-grpc_opt=paths=import --proto_path=../protos ../protos/calculator.proto

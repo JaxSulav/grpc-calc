@@ -36,8 +36,15 @@ message FindMaxResponse {
 }
 
 service calculator {
+  // Unary
   rpc SumService(SumRequest) returns (SumResponse) {};
+
+  // Server Streaming
   rpc PrimeService(PrimeRequest) returns (stream PrimeResponse) {};
+
+  // Client Streaming
   rpc AverageService(stream AverageRequest) returns (AverageResponse){};
+
+  // Bidirectional Streaming
   rpc FindMaxService(stream FindMaxRequest) returns (stream FindMaxResponse) {};
 }
